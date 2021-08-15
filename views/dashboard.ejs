@@ -1,74 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>Welcom</title>
-        <link rel="stylesheet" href="style.css">
-    </head>
-    <body>
-        <%- include('partials/nav.ejs') %>
-        <h1>Dashboard</h1>
-        <div id="profile-dashboard">
+<%- include('./partials/header.ejs') %>
+<h1>Dashboard</h1>
+<div id="profile-dashboard">
+    <ul>
+        <li>
+        <h4>Name: <%- user.name %></h4>
+        </li>
+        <li>
+        <h4>Email: <%- user.email %></h4>
+        </li>
+    </ul>
+</div>
+<div id="polls-active">
+    <h2>Active polls:</h2>
+    <% data.pollsActive.forEach(function(poll){ %>
+        <div key=<%- poll._id %> >
             <ul>
-                <li>
-                    <h4>Name: </h4>
-                </li>
-                <li>
-                    <h4>Email:</h4>
-                </li>
+                <% poll.options.forEach(function(option){ %>
+                    <li key = <%- option._id %>>
+                        <a id="option" href="/vote/<%- poll._id %>/<%- option._id %>  " >Option:<%- option.optionName %></a>
+                    </li>
+                <% }) %> 
+            </ul>
+            <% if(user.role === 'Admin') %><a class="button" href="/poll-end/<%- poll._id %> ">End Poll</a>
+        </div>
+
+    <% })%>
+</div>
+<div id="polls-ended">
+    <h2>Ended polls:</h2>
+    <% data.pollsEnded.forEach(function(poll){ %>
+        <div key=<%- poll._id %> >
+            <ul>
+                <% poll.options.forEach(function(option){ %>
+                    <li key = <%- option._id %>>
+                        <p>Option:<%- option.optionName %></p>
+                        <p>Votes:<%- option.votes %> </p>
+                    </li>
+                <% }) %> 
             </ul>
         </div>
-        <div id="active-polls">
-            <h2>Active Polls</h2>
-            <% pollsActive.forEach(function(item){ %>
-                    <div key=<%- pollsActive.indexOf(item) %> >
-                        <ul>
-                            <% item.forEach(function(options){ %>
-                                <li key = <%- item.indexOf(options) %>>
-                                    <a id="option" href="#" onclick="addVote(this)">Option:<%- options.name %></a>
-                                </li>
-                            <% }) %> 
-                        </ul>
-                    </div>
 
-            <% })%>
-        </div>
-        <div id="poll-results">
-            <h2>Poll Results</h2>
-            <% pollsEnded.forEach(function(item){ %>
-                <div>
-                    <ul>
-                        <% item.forEach(function(options){ %>
-                            <li>
-                                <h5>Option:<%- options.name %></h5>
-                                <p><%- options.percent %> </p>
-                            </li>
-                        <% }) %> 
-                    </ul>
-                </div>
-
-            <% })%>
-        </div>
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-        <script>
-                function addVote(element){
-
-                    console.log(element.parentElement.data);
-
-                    var vote = {option: element.parentElement.attributes.value,poll: element.parentElement.parentElement.parentElement.attributes.value};
-                    console.log(vote.option);
-                    console.log(vote.poll);
-
-                    $.ajax({
-                    type: 'POST',
-                    url: '/dashboard/',
-                    data: vote,
-                    success: function(data){
-                        //do something with the data via front-end framework
-                        location.reload();
-                    }
-                    });
-                }
-        </script>
-    </body>
-</html>
+    <% })%>
+</div>
+<%- include('./partials/footer.ejs') %>

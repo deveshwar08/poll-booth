@@ -1,0 +1,70 @@
+<%- include('./partials/header.ejs') %>
+    <% if(user.role === 'Admin'){ %>
+        <form>
+            <label for="pollName">Poll Name:</label>
+            <input name="pollName" type="text">
+            <label for="optionNumber">How many options u want to create</label>
+            <input name="optionNumber" type="number">
+            <a class="btn" id="createOptions" onclick="createOptions()">Create Options</a>
+            <div id="options">
+
+            </div>
+            <button type="submit">Create Poll</button>
+        </form>
+
+        <script>
+            const form = document.querySelector('form');
+            const optionsDiv = document.querySelector('#options');
+            let optionNumber;
+
+            function createOptions(){
+                const noOfOptions = form.optionNumber.value;
+                optionNumber = noOfOptions;
+                document.querySelector('#options').innerHTML = "";
+                for(let i = 1;i <= noOfOptions;i++){
+                    let label = document.createElement("label");
+                    let input = document.createElement("input");
+                    let labelText = document.createTextNode("Option "+i);
+                    input.setAttribute('name',"optionName"+i);
+                    input.setAttribute('id',"optionName"+i);
+                    input.setAttribute('type','text');
+                    label.setAttribute("for","optionName"+i);
+                    label.appendChild(labelText);
+                    optionsDiv.appendChild(label);
+                    optionsDiv.appendChild(input);
+                }
+            }
+        
+            form.addEventListener('submit',async (e) =>{   
+                e.preventDefault();
+                const pollName = form.pollName.value;
+                let options = [];
+                for(let i = 1;i <= optionNumber;i++)
+                {   
+                    let temp = "optionName"+i;
+                    let tempValue = document.getElementById(temp).value;
+                    options.push({optionName: tempValue});
+                }
+                console.log(options);
+                try{
+                    const res = await fetch('/create-poll',{
+                        method: 'POST',                    
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({pollName,options}),
+                    });
+                    const data = await res.json();
+                    console.log(data);
+                    if(data.auction){
+                        location.assign('/');
+                    }
+                }
+                catch (err){
+                    console.log(err);
+                }
+            });
+        </script>
+    <% }else { %>
+        <h1 class="error">You have no access to this page</h1>
+    <% } %> 
+
+<%- include('./partials/footer') %> 
